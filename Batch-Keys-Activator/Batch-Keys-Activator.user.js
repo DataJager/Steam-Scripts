@@ -100,6 +100,7 @@ var settings =
 var timestamp             = 0;
 //Collect Keys from bundle sites here
 var keysData              = [];
+var gameNames             = [];
 //Fancy Console
 var consoleCSS            = 'color:#FFE4E1; font-size: 15px; font-family: raleway, sans-serif; background-color: #F14D39';
 
@@ -334,7 +335,7 @@ function onActivationProcessFinished()
         if((alreadyOwnedGame_keys.length != 0) || (otherFailed_keys.length != 0))
         {
             logDisplay.css('background-color', 'rgba(230, 10, 22, 0.3)');//red
-            logDisplay.append('Activation limit exceeded! Some of the keys have not been activated! Try again at ' + date.getHours() + ':' + date.getMinutes() + '. Also some of the keys have failed to be activated:');
+            logDisplay.append('Activation limit exceeded! Some of the keys have not been activated! Try again at ' + date.toTimeString() + '. Also some of the keys have failed to be activated:');
 
             if(alreadyOwnedGame_keys.length != 0)
             {
@@ -351,7 +352,7 @@ function onActivationProcessFinished()
         else
         {
             logDisplay.css('background-color', 'rgba(255,174,25, 0.3)');//orange
-            logDisplay.append('Activation limit exceeded! Some of the keys have not been activated! Try again at '  + date.getHours() + ':' + date.getMinutes());
+            logDisplay.append('Activation limit exceeded! Some of the keys have not been activated! Try again at '  + date.toTimeString() );
         }
 
         logDisplay.append('<br><br>Unprocessed keys:<br>' + unprocessed_keys.join());
@@ -387,7 +388,7 @@ function initializeKeysRegistration()
     if((new Date).getTime() < timestamp)
     {
         var date = new Date(timestamp);
-        logDisplay.append('Keys Activation Cooldown has not passed yet!<br>Try to activate again at ' + date.getHours() + ':' + date.getMinutes());
+        logDisplay.append('Keys Activation Cooldown has not passed yet!<br>Try to activate again at ' + date.toTimeString() );
         return;
     }
     
@@ -862,22 +863,49 @@ function fanaticalProcess()
 function humbleBundleProcess()
 {
     setTimeout(function(){
+        //Add a button to the top of the keylist
         $('.key-list').before('<div id="ActivateOnSteam" class="round-active-button">Redeem and Activate the Keys on Steam</a>');
 
+        //Change the button on click
         $('#ActivateOnSteam').click(function(){
             $('#ActivateOnSteam').text('Redeeming...');
 
+            //find all the components of class 'keyfield-value'
             $('.keyfield-value').each(function(){
-                $(this).click();
+
+                //IF the key has NOT been revealed
+                //THEN click to reveal it AND push it to the stack
+                if (this.textContent == 'Reveal your Steam key') {
+                    //Back up to the key-redeemer div
+                    let redeemerElement = this.parentNode.parentNode.parentNode;
+                    //get the game name from the key-redeemer's heading-text component
+                    let gameNameElement = redeemerElement.getElementsByClassName('heading-text');
+                    let gameName = gameNameElement[0].textContent;
+                    gameName = gameName.replace(/(\r\n|\n|\r|\s)/gm, "");
+                    gameNames.push(gameName);
+                    $(this).click();
+               }
+
             });
 
             setTimeout(function(){
                 $('#ActivateOnSteam').text('Fetching...');
 
-                $('.keyfield.redeemed').each(function(){
-                    keysData.push($(this).attr('title'));
+                $('.keyfield').each(function(){
+                    //back up to the key-reedemer element
+                    let redeemerElement = this.parentNode.parentNode;
+                    //get the game name from the key-redeemer's heading-text component
+                    let gameNameElement = redeemerElement.getElementsByClassName('heading-text');
+                    let gameName = gameNameElement[0].textContent;
+                    gameName = gameName.replace(/(\r\n|\n|\r|\s)/gm, "");
+                    //check if the gameName is in the list of keys to be redeemed
+                    if(gameNames.includes(gameName)){
+                       console.log("Trying to redeem" + gameName);
+                       console.log($(this).attr('title'));
+                       keysData.push($(this).attr('title'));
+                       console.log(keysData)
+                       }
                 });
-
                 $('#ActivateOnSteam').text('Done! Redirecting to Steam...');
                 Bundle_ProcessKeys();
             }, 3000);
