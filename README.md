@@ -3,6 +3,7 @@
 ### Use Tampermonkey/Greasemonkey or similar userscript manager
 
 ### Open script's folder for descriptions and guides
+I took this from LiteOnE, feel free to support him with the links below:
 
 # If you want to support me, feel free to do so [on my Ko-fi](https://ko-fi.com/xeox_ceo), [Patreon](https://www.patreon.com/xeox) or [send a trade offer](https://steamcommunity.com/tradeoffer/new/?partner=151993701&token=yim1BYNv)
 
